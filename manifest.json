@@ -1,0 +1,21 @@
+{
+    "manifest_version": 3,
+    "name": "AWS Infrastructure Assistant",
+    "version": "1.0",
+    "description": "AI-powered AWS infrastructure analyzer",
+    "permissions": [
+        "storage",
+        "activeTab",
+        "aiLanguageModel"
+    ],
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "trial_tokens": [
+        "TOKEN1_FOR_LANGUAGE_MODEL",
+        "TOKEN2_FOR_SUMMARIZER"
+    ]
+}
