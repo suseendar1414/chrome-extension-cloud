@@ -2,20 +2,18 @@
     "manifest_version": 3,
     "name": "AWS Infrastructure Assistant",
     "version": "1.0",
-    "description": "AI-powered AWS infrastructure analyzer",
+    "description": "OpenAI-powered AWS infrastructure analyzer",
     "permissions": [
-        "storage",
-        "activeTab",
-        "aiLanguageModel"
+      "storage"
+    ],
+    "host_permissions": [
+      "https://api.openai.com/*",
+      "https://*.amazonaws.com/*"
     ],
     "action": {
-        "default_popup": "popup.html"
+      "default_popup": "popup.html"
     },
-    "background": {
-        "service_worker": "background.js"
-    },
-    "trial_tokens": [
-        "TOKEN1_FOR_LANGUAGE_MODEL",
-        "TOKEN2_FOR_SUMMARIZER"
-    ]
-}
+    "content_security_policy": {
+      "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+    }
+  }

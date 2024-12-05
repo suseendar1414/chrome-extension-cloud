@@ -1,102 +1,280 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>AWS Infrastructure Assistant</title>
-  <style>
-    body {
-       width: 400px;
-       padding: 15px;
-       font-family: system-ui, -apple-system, sans-serif;
-    }
-    .input-group {
-      margin-bottom: 15px;
-    }
-    input {
-      width: 100%;
-      padding: 8px;
-      margin: 5px 0;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-      font-size: 14px;
-      color: #333;
-    }
-    button {
-      width: 100%;
-      padding: 8px;
-      background: #0066cc;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    button:hover {
-      background: #0052a3;
-    }
-    #result {
-      margin-top: 15px;
-      padding: 10px;
-      background: #f5f5f5;
-      border-radius: 4px;
-      white-space: pre-wrap;
-    }
-    select {
-      width: 100%;
-      padding: 8px;
-      margin: 5px 0;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-    textarea {
-      width: 100%;
-      height: 200px;
-      margin-top: 10px;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>AWS Infrastructure Assistant</title>
+    <!-- React and dependencies -->
+    <style>
+        :root {
+            --primary-color: #0066cc;
+            --hover-color: #0052a3;
+            --border-color: #ddd;
+            --background-color: #f5f5f5;
+            --error-color: #dc3545;
+            --success-color: #28a745;
+        }
+
+        body {
+            width: 800px;
+            padding: 20px;
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            background-color: #ffffff;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+        }
+
+        select {
+            background-color: white;
+            cursor: pointer;
+        }
+
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+            font-family: monospace;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background: var(--hover-color);
+        }
+
+        button:disabled {
+            background: var(--border-color);
+            cursor: not-allowed;
+        }
+
+        #result {
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--background-color);
+            border-radius: 6px;
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        .error {
+            color: var(--error-color);
+            padding: 10px;
+            border-radius: 6px;
+            background-color: rgba(220, 53, 69, 0.1);
+            margin: 10px 0;
+        }
+
+        .success {
+            color: var(--success-color);
+            padding: 10px;
+            border-radius: 6px;
+            background-color: rgba(40, 167, 69, 0.1);
+            margin: 10px 0;
+        }
+
+        #dashboardContainer {
+            margin-top: 20px;
+        }
+
+        #awsDashboard {
+            min-height: 400px;
+        }
+        .dashboard {
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .metric-card {
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .metric-title {
+            font-size: 14px;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .metric-subtitle {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .dashboard-loading {
+            padding: 20px;
+            text-align: center;
+            color: #6b7280;
+        }
+
+        .dashboard-error {
+            padding: 20px;
+            color: #dc2626;
+            background: #fee2e2;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+    </style>
 </head>
 <body>
-  <div class="input-group">
-    <label for="accessKey">AWS Access Key:</label>
-    <input type="text" id="accessKey" placeholder="Enter your Access Key">
-    
-    <label for="secretKey">AWS Secret Access Key:</label>
-    <input type="password" id="secretKey" placeholder="Enter your Secret Access Key">
-    
-    <label for="region">AWS Region:</label>
-    <select id="region">
-      <option value="us-east-1">US East (N. Virginia)</option>
-      <option value="us-east-2">US East (Ohio)</option>
-      <option value="us-west-1">US West (N. California)</option>
-      <option value="us-west-2">US West (Oregon)</option>
-      <option value="eu-west-1">EU (Ireland)</option>
-      <option value="eu-central-1">EU (Frankfurt)</option>
-      <option value="ap-northeast-1">Asia Pacific (Tokyo)</option>
-      <option value="ap-southeast-1">Asia Pacific (Singapore)</option>
-      <option value="ap-southeast-2">Asia Pacific (Sydney)</option>
-    </select>
-    
-    <button id="connect">Connect to AWS</button>
-  </div>
+    <div class="container">
+        <div class="header">
+            <h1>AWS Infrastructure Assistant</h1>
+        </div>
 
-  <button id="showLogs" style="display: none;">Show Logs</button>
-  <textarea id="logsArea" style="display: none;"></textarea>
-  <button id="summarizeLogs" style="display: none;">Summarize Logs</button>
+        <!-- Connection Card -->
+        <div class="card">
+            <div class="input-group">
+                <label for="accessKey">AWS Access Key</label>
+                <input type="text" id="accessKey" placeholder="Enter your Access Key" autocomplete="off">
+            </div>
 
-  <div id="querySection" style="display: none;" class="input-group">
-    <input type="text" id="question" placeholder="Ask about your infrastructure...">
-    <button id="ask">Analyze</button>
-  </div>
+            <div class="input-group">
+                <label for="secretKey">AWS Secret Access Key</label>
+                <input type="password" id="secretKey" placeholder="Enter your Secret Access Key" autocomplete="off">
+            </div>
 
-  <div id="result"></div>
+            <div class="input-group">
+                <label for="region">AWS Region</label>
+                <select id="region">
+                    <option value="" disabled selected>Select a region</option>
+                    <option value="us-east-1">US East (N. Virginia)</option>
+                    <option value="us-east-2">US East (Ohio)</option>
+                    <option value="us-west-1">US West (N. California)</option>
+                    <option value="us-west-2">US West (Oregon)</option>
+                    <option value="af-south-1">Africa (Cape Town)</option>
+                    <option value="ap-east-1">Asia Pacific (Hong Kong)</option>
+                    <option value="ap-south-1">Asia Pacific (Mumbai)</option>
+                    <option value="ap-northeast-1">Asia Pacific (Tokyo)</option>
+                    <option value="ap-northeast-2">Asia Pacific (Seoul)</option>
+                    <option value="ap-southeast-1">Asia Pacific (Singapore)</option>
+                    <option value="ap-southeast-2">Asia Pacific (Sydney)</option>
+                    <option value="ca-central-1">Canada (Central)</option>
+                    <option value="eu-central-1">Europe (Frankfurt)</option>
+                    <option value="eu-west-1">Europe (Ireland)</option>
+                    <option value="eu-west-2">Europe (London)</option>
+                    <option value="eu-west-3">Europe (Paris)</option>
+                    <option value="eu-north-1">Europe (Stockholm)</option>
+                    <option value="sa-east-1">South America (São Paulo)</option>
+                </select>
+            </div>
 
-  <script src="aws-sdk.min.js"></script>
-  <script src="popup.js"></script>
+            <button id="connect">Connect to AWS</button>
+        </div>
+
+        <!-- New Dashboard Section -->
+        <div id="dashboardContainer" class="card hidden">
+            <div id="awsDashboard"></div>
+        </div>
+
+        <!-- Keep your existing sections -->
+        <div id="querySection" class="card hidden">
+            <div class="input-group">
+                <label for="question">Ask about your infrastructure</label>
+                <input type="text" id="question" placeholder="E.g., How many EC2 instances are running?">
+            </div>
+            <button id="ask">Analyze</button>
+        </div>
+
+        <div id="logsSection" class="card hidden">
+            <button id="showLogs">Show Logs</button>
+            <textarea id="logsArea" class="hidden" placeholder="Logs will appear here..."></textarea>
+            <button id="summarizeLogs" class="hidden">Analyze Logs</button>
+        </div>
+
+        <div id="result" class="hidden"></div>
+    </div>
+
+<!-- Keep only these script tags in this order -->
+    <!-- Place at the bottom of popup.html -->
+    <script src="react.production.min.js"></script>
+    <script src="react-dom.production.min.js"></script>
+    <script src="aws-sdk.min.js"></script>
+    <script src="config.js"></script>
+    <script src="popup.js"></script>
+    <script src="costDashboard.js"></script>
+    <script src="initScripts.js"></script>
 </body>
 </html>
