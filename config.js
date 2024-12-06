@@ -1,7 +1,7 @@
 // config.js
 const CONFIG = {
     OPENAI: {
-        API_KEY: 'Api-key',
+        API_KEY: 'API-key',
         BASE_URL: 'https://api.openai.com/v1',
         MODEL: 'gpt-4',
         TEMPERATURE: 0.7

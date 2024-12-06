@@ -482,6 +482,10 @@ class UIController {
       }
 
     async handleAnalyze() {
+        console.log('Starting analysis...');
+        console.log('OpenAI API Key exists:', !!CONFIG.OPENAI.API_KEY);
+        console.log('AWS Connection state:', this.state.isConnected);
+        console.log('AWS Data exists:', !!this.state.awsData);
         const question = document.getElementById('question').value;
         if (!question || !this.state.isConnected) {
             this.showMessage('Please connect to AWS and enter a question', 'error');
@@ -523,36 +527,50 @@ class UIController {
         const reader = stream.getReader();
         const decoder = new TextDecoder();
         const resultDiv = document.getElementById('result');
+        let buffer = '';
         let text = '';
-
+    
         try {
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                const chunk = decoder.decode(value);
-                const lines = chunk.split('\n');
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+    
+            // Add new chunk to buffer
+            buffer += decoder.decode(value, { stream: true });
+    
+            // Process complete messages
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || ''; // Keep last incomplete line in buffer
+    
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6).trim();
                 
-                for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        const data = line.slice(6);
-                        if (data === '[DONE]') continue;
-                        try {
-                            const parsed = JSON.parse(data);
-                            if (parsed.choices[0].delta.content) {
-                                text += parsed.choices[0].delta.content;
-                                resultDiv.textContent = text;
-                            }
-                        } catch (e) {
-                            console.error('Error parsing SSE:', e);
-                        }
-                    }
+                // Skip if it's the done message
+                if (data === '[DONE]') continue;
+                
+                try {
+                  const parsed = JSON.parse(data);
+                  if (parsed.choices?.[0]?.delta?.content) {
+                    text += parsed.choices[0].delta.content;
+                    resultDiv.textContent = text;
+                  }
+                } catch (e) {
+                  console.debug('Skipping incomplete JSON chunk:', data);
+                  // Don't throw error for incomplete chunks
+                  continue;
                 }
+              }
             }
+          }
+        } catch (error) {
+          console.error('Stream processing error:', error);
+          resultDiv.textContent = `Error: ${error.message}. Please try again.`;
         } finally {
-            reader.releaseLock();
+          reader.releaseLock();
         }
-    }
+      }
+    
 
 
     updateUIAfterConnection() {
